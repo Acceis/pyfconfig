@@ -1,6 +1,7 @@
 """
 This module serves basic layer 2 management for network interfaces.
 """
+from pyfconfig.exceptions import *
 from pyfconfig.constants import *
 from pyfconfig.methods import *
 import os
@@ -106,9 +107,12 @@ must exist (eg : "eth0").
         self.__writeFlags(newFlags)
 
     def __writeFlags(self, newFlags):
-        fd = open(f"{sysPath}{self._name}/flags", "w")
-        fd.write(f"{newFlags}\n")
-        fd.close
+        if IS_ROOT:
+            fd = open(f"{sysPath}{self._name}/flags", "w")
+            fd.write(f"{newFlags}\n")
+            fd.close
+        else:
+            raise NotRootException()
 
     @property
     def operstate(self):

@@ -9,5 +9,9 @@ various network interface you might have.
 """
 from pyfconfig.Interface import Interface, getInterfaces
 from pyfconfig.IpInterface import IpInterface, getRoutes
-
+import os
 __all__ = ["Interface", "IpInterface", "getInterfaces", "getRoutes"]
+
+if os.geteuid() != 0:
+    print("Warning : library not imported as root. You won't be able to use"
+          " advanced functionalities")

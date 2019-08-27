@@ -2,6 +2,7 @@
 Common constants found in the kernel header file (if.h), and netlink\
 documentation (man(7) netlink).
 """
+import os
 
 officialFlags = {
     "UP": 1 << 0,
@@ -41,3 +42,5 @@ RTAMessages = {
     "RTA_FLOW": "flow",
     "RTA_CACHEINFO": "cacheInfo"
 }
+
+IS_ROOT = os.geteuid() == 0

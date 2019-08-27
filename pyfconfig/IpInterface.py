@@ -8,6 +8,7 @@ from pyfconfig.Interface import Interface
 from pyroute2 import IPRoute
 from pyfconfig.exceptions import *
 from pyfconfig.methods import *
+from pyfconfig.constants import IS_ROOT
 import ipaddress
 
 
@@ -60,17 +61,20 @@ ipaddress. The addresses are represented as IPv4Interface\
         :param address: The string representing the IP address.
                   Example : "10.10.10.1/24", "10.10.10.1"
         """
-        addr = ipaddress.ip_interface(address)
-        with IPRoute() as ipr:
-            index = ipr.link_lookup(ifname=self.name)[0]
-            try:
-                ipr.addr("add", index=index,
-                         address=str(addr.ip), mask=addr.network.prefixlen)
-            except NetlinkError as e:
-                if e.code == 17:
-                    raise AddressAlreadyExistsException()
-                else:
-                    raise e
+        if IS_ROOT:
+            addr = ipaddress.ip_interface(address)
+            with IPRoute() as ipr:
+                index = ipr.link_lookup(ifname=self.name)[0]
+                try:
+                    ipr.addr("add", index=index,
+                             address=str(addr.ip), mask=addr.network.prefixlen)
+                except NetlinkError as e:
+                    if e.code == 17:
+                        raise AddressAlreadyExistsException()
+                    else:
+                        raise e
+        else:
+            raise NotRootException()
 
     def delIpAddress(self, address):
         """
@@ -79,24 +83,30 @@ ipaddress. The addresses are represented as IPv4Interface\
         :param address: The string representing the IP address to remove.
                         Example : "10.10.10.1/24", "10.10.10.1".
         """
-        addr = ipaddress.ip_interface(address)
-        with IPRoute() as ipr:
-            index = ipr.link_lookup(ifname=self.name)
-            try:
-                ipr.addr("delete", index=index,
-                         address=str(addr.ip), mask=addr.network.prefixlen)
-            except NetlinkError as e:
-                if e.code == 99:  # address already exists
-                    raise AddressDoesntExistException()
-                else:
-                    raise e
+        if IS_ROOT:
+            addr = ipaddress.ip_interface(address)
+            with IPRoute() as ipr:
+                index = ipr.link_lookup(ifname=self.name)
+                try:
+                    ipr.addr("delete", index=index,
+                             address=str(addr.ip), mask=addr.network.prefixlen)
+                except NetlinkError as e:
+                    if e.code == 99:  # address already exists
+                        raise AddressDoesntExistException()
+                    else:
+                        raise e
+        else:
+            raise NotRootException()
 
     def flushIpAddresses(self):
         """
         Flushes IP addresses for the current interface.
         """
-        with IPRoute() as ipr:
-            ipr.flush_addr(label=self.name)
+        if IS_ROOT:
+            with IPRoute() as ipr:
+                ipr.flush_addr(label=self.name)
+        else:
+            raise NotRootException()
 
     @property
     def routes(self):

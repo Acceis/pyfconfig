@@ -28,3 +28,16 @@ class AddressDoesntExistException(NetlinkError):
         The exception constructor
         """
         super().__init__(99, "This IP address does not exist.")
+
+
+class NotRootException(Exception):
+    """
+    Exception to state that the library cannot operate as the user requests\
+because of lack of proper rights
+    """
+
+    def __init__(self):
+        """
+        The exception constructor
+        """
+        super().__init__("Permission denied.")
