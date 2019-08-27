@@ -91,6 +91,13 @@ ipaddress. The addresses are represented as IPv4Interface\
                 else:
                     raise e
 
+    def flushIpAddresses(self):
+        """
+        Flushes IP addresses for the current interface.
+        """
+        with IPRoute() as ipr:
+            ipr.flush_addr(label=self.name)
+
     @property
     def routes(self):
         """
