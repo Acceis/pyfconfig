@@ -91,7 +91,7 @@ eth0.addIpAddress("10.10.10.42/24")
 eth0.delIpAddress("10.10.10.42.24")
 ```
 
-## Installation
+## Install
 
 Download the latest release and install it with pip :
 ```bash
